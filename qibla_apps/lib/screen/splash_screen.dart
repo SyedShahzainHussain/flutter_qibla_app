@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:qibla_apps/screen/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -8,6 +11,17 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 5), () {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false);
+    });
+  }
+
   @override
   Widget build(context) {
     return Scaffold(
@@ -32,7 +46,7 @@ class SplashScreenState extends State<SplashScreen> {
           style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                 color: Colors.black,
                 fontStyle: FontStyle.italic,
-            fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.bold,
               ),
         )
       ]),

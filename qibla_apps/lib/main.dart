@@ -1,40 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:qibla_apps/provider/theme/app_theme.dart';
 import 'package:qibla_apps/screen/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool hasPermission = false;
+
+  Future getPermission() async {
+    if (await Permission.location.serviceStatus.isEnabled) {
+      var status = await Permission.location.status;
+      if (status.isGranted) {
+        hasPermission = true;
+      } else {
+        Permission.location.request().then((value) {
+          setState(() {
+            hasPermission = (value == PermissionStatus.granted);
+          });
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Qibla App',
+      themeMode: ThemeMode.system,
+      theme: MyThemes.lightTheme,
+      darkTheme: MyThemes.darkTheme,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      home: FutureBuilder(
+        future: getPermission(),
+        builder: (context, snapshot) {
+          if (hasPermission) {
+            return const SplashScreen();
+          } else {
+            return Scaffold(
+              backgroundColor: Colors.blueGrey.shade600,
+              body: const Center(
+                child: Text("No Permission Access"),
+              ),
+            );
+          }
+        },
       ),
-      home: SplashScreen(),
     );
   }
 }
-
